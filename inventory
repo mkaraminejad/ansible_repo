@@ -1,3 +1,4 @@
-100.0.0.3
-100.0.0.4
-100.0.0.5
+100.0.0.3 apache_package=apache2 php_package=libapache2-mod-php
+100.0.0.4 apache_package=apache2 php_package=libapache2-mod-php 
+100.0.0.5 apache_package=httpd php_package=php
+
