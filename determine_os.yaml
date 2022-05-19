@@ -1,0 +1,15 @@
+---
+- hosts: all
+  become: true
+  gather_facts: yes
+  tasks:
+
+  - name: Distribution version
+    debug: msg="{{ ansible_distribution}}"        
+  - name: Distribution version
+    debug: msg="{{ ansible_distribution_version}}"
+  - name:  
+    debug: msg="{{ item}}"
+    with_items: 
+        - "{{ ansible_distribution}}"
+        - "{{ ansible_distribution_version}}"  

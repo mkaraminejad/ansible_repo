@@ -1,0 +1,36 @@
+---
+- hosts: webservers
+  become: true
+  vars:
+          ntp_user: ['ntp']
+  tasks:
+    - name: Update Repo Index
+      apt:
+        update_cache: yes
+      when: ansible_distribution in ["Ubuntu","debian"]
+    
+    - name: INSTALL NTP
+      package:
+              name: ntp
+              state: present 
+    - name: COPY NTP configuration from Local Template to Servers
+      template:
+              src: ./templates/ntp.conf
+              dest: /etc/ntp.conf      
+      notify:
+              - restart ntp
+    - name: Enable NTP service
+      systemd:
+            name: ntp.service
+            enabled: true
+    - name: Retrieve NTP UID and GID
+      getent: 
+        database: passwd
+        key: ntp
+
+    - name: SHOW UID  
+      debug:
+            var: getent_passwd['ntp'][1]     
+    - name: SHOW GID
+      debug:
+            var: getent_passwd['ntp'][2]      
