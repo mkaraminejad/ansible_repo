@@ -4,32 +4,60 @@
   tasks:
 
 
-          # - name: Update Repo Index
-          #apt:
-          #         update_cache: yes    
-          #when: ansible_distribution in ["Ubuntu","debian"]        
+  - name: Update Repo Index
+    tags: always
+    apt:
+          upgrade: dist  
+          update_cache: yes    
+    when: ansible_distribution in ["Ubuntu","debian"]        
+  
+  - name: Update Repo Index
+    tags: always
+    dnf:
+          update_only: yes
+          update_cache: yes
+    when: ansible_distribution == "CentOS"    
 
-          #- name: Update Repo Index
-          #dnf:
-          #update_cache: yes
-          #when: ansible_distribution == "CentOS"    
-
-  - name: Install Apache and PHP Packages 
-    #apt:
-    package:        
+  - name: Install Apache and PHP Packages for Debian and Ubuntu
+    apt:        
         name: 
-        - "{{ apache_package }}"
-        - "{{ php_package }}" 
+        - apache2
+        - libapache2-mod-php
         state: latest
         update_cache: yes
-        #when: ansible_distribution == "Ubuntu"     
-   
+    when: ansible_distribution == "Ubuntu"     
 
-        #- name: Install Apache2 Package for CentOS
-        #dnf:
-        #name: 
-        #- httpd
-        #- php  
-        #state: latest
-        #update_cache: yes
-        #when: ansible_distribution == "CentOS"    
+  - name: Start httpd Service for Ubuntu
+    tags: httpd,ubuntu,apache
+    service:
+          name: apache2
+          state: started
+          enable: yes
+    when: ansible_distribution == "UBUNTU"   
+
+  - name: Install Apache2 Package for CentOS
+    dnf:
+        name: 
+        - httpd
+        - php  
+        state: latest
+        update_cache: yes
+    when: ansible_distribution == "CentOS"
+ 
+  - name: Start httpd Service for Centos
+    tags: httpd,centos,apache
+    systemd:
+            name: httpd
+            state: started
+            enable: yes
+    when: ansible_distribution == "CentOS"
+
+  - name: Copy Default HTML file to webserver
+    copy:
+            src: templates/default.html
+            dest: /var/www/html/index.html    
+            owner: root
+            group: root
+            mode: 0644 
+            
+                
